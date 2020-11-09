@@ -1,0 +1,14 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="150"
+        x:Class="chemdb_contribute_tool.Msgbox"
+        Title="警告" Icon="resm:chemdb-contribute-tool.chemicon.ico?assembly=chemdb-contribute-tool"
+        FontFamily="Microsoft YaHei,微软雅黑,Simsun,苹方-简,宋体-简,文泉驿微米黑">
+  <Grid>
+    <TextBox x:Name="Msg" Margin="10,10,10,50" TextWrapping="Wrap" AcceptsReturn="True" IsReadOnly="True"></TextBox>
+    <Button Content="是" VerticalAlignment="Bottom" Height="30" Margin="10,10,105,10" Click="YClick"></Button>
+    <Button Content="否" VerticalAlignment="Bottom" Height="30" Margin="105,10,10,10" Click="NClick"></Button>
+  </Grid>
+</Window>

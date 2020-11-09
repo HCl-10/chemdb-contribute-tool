@@ -32,15 +32,15 @@ namespace chemdb_contribute_tool
             if (moe[l] == '(' || moe[l] == '[' || moe[l] == '{' || moe[l] == '<')
             {
                 int at = 0, bt = 0, ct = 0, dt = 0;
-                if (moe[0] == '(')
+                if (moe[l] == '(')
                 {
                     at++;
                 }
-                else if (moe[0] == '[')
+                else if (moe[l] == '[')
                 {
                     bt++;
                 }
-                else if (moe[0] == '{')
+                else if (moe[l] == '{')
                 {
                     ct++;
                 }
@@ -48,7 +48,7 @@ namespace chemdb_contribute_tool
                 {
                     dt++;
                 }
-                int i = l;
+                int i = l + 1;
                 while (i < r && (at > 0 || bt > 0 || ct > 0 || dt > 0))
                 {
                     if (moe[i] == '(')
@@ -140,7 +140,7 @@ namespace chemdb_contribute_tool
                 t++;
             }
             if (tt == 0) tt = 1;
-            int Wl = GetAtomWeight(s, t);
+            int Wl = GetAtomWeight(l, s);
             long res = (long)Wl * tt;
             if(t == r)
             {

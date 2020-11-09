@@ -1,0 +1,14 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="120"
+        x:Class="chemdb_contribute_tool.InputPanels.LoginWindow"
+        Title="登录" FontFamily="Microsoft YaHei,微软雅黑,Simsun,苹方-简,宋体-简,文泉驿微米黑"
+        Icon="resm:chemdb-contribute-tool.chemicon.ico?assembly=chemdb-contribute-tool">
+  <Grid>
+    <TextBlock Margin="10,10,10,10" Text="请输入用户名："></TextBlock>
+    <TextBox Margin="10,40,10,10" VerticalAlignment="Top" Height="30" Watermark="不能包含 \ / : * ? &#34; &#60; &#62; &#124; 及 ASCII &#60; 32 的字符" KeyUp="TextChanged" x:Name="username"></TextBox>
+    <Button Margin="10,10,10,10" VerticalAlignment="Bottom" Height="30" Content="登录" Click="OKClick"></Button>
+  </Grid>
+</Window>
