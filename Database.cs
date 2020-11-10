@@ -1,11 +1,13 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Media;
 using Serilog.Debugging;
+using SharpDX.Direct2D1;
 using SharpDX.Mathematics.Interop;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
+using System.Reflection;
 using System.Text;
 
 namespace chemdb_contribute_tool
@@ -50,24 +52,19 @@ namespace chemdb_contribute_tool
             }
 
             // 判断这个分子信息是否可以在指定的搜索字符串下显示
-            public bool Filte(string search)
+            public byte Filte(string search, int Hash1, int Hash2)
             {
+                if (Hash1 == hash1 && Hash2 == hash2) return 1;
                 if (formula.ToLower().Contains(search.ToLower()) || name.ToLower().Contains(search.ToLower())
-                    || cas.ToLower().Contains(search.ToLower())) return true;
-                MolCalculator calculator = new MolCalculator(search, AtomDB.hash1, 998244353);
-                if(calculator.Calculate() == hash1)
-                {
-                    MolCalculator calculator1 = new MolCalculator(search, AtomDB.hash2, 1234567891);
-                    if (calculator1.Calculate() == hash2) return true; // 同分异构体
-                }
+                    || cas.ToLower().Contains(search.ToLower())) return 2;
                 try
                 {
                     double val = Convert.ToDouble(search);
                     double del = val * 10 - mol;
                     if (del < 0) del = -del;
-                    if (del < 0.4) return true;
+                    if (del < 4) return 2;
                 } catch(Exception) { }
-                return false;
+                return 0;
             }
         }
 
@@ -143,7 +140,10 @@ namespace chemdb_contribute_tool
                 }
                 input.Close();
             }
-            catch(Exception) { }
+            catch(Exception)
+            {
+                names.Add("");
+            }
         }
 
         public void Append(string file, string name)
@@ -208,13 +208,13 @@ namespace chemdb_contribute_tool
                 item.Content = datas[i].toString();
                 if(datas[i].mode)
                 {
-                    SolidColorBrush brush = new SolidColorBrush();
+                    Avalonia.Media.SolidColorBrush brush = new Avalonia.Media.SolidColorBrush();
                     brush.Color = Colors.DarkRed;
                     item.Background = brush.ToImmutable();
                 }
                 else if(datas[i].contrib.Contains(id))
                 {
-                    SolidColorBrush brush = new SolidColorBrush();
+                    Avalonia.Media.SolidColorBrush brush = new Avalonia.Media.SolidColorBrush();
                     brush.Color = Colors.DarkViolet;
                     item.Background = brush.ToImmutable();
                 }
@@ -275,6 +275,100 @@ namespace chemdb_contribute_tool
             }
             output.WriteByte(0);
             output.Flush(); output.Close();
+        }
+
+        public IEnumerable<ListBoxItem> Search(string s)
+        {
+            List<Tuple<byte, int>> tuples = new List<Tuple<byte, int>>();
+            int Hash1, Hash2;
+            try
+            {
+                Hash1 = new MolCalculator(s, AtomDB.hash1, 998244353).Calculate();
+                Hash2 = new MolCalculator(s, AtomDB.hash2, 1234567891).Calculate();
+            } catch(Exception)
+            {
+                Hash1 = Hash2 = -1;
+            }
+            for (int i = 0; i < datas.Count; ++i)
+            {
+                byte mode = datas[i].Filte(s, Hash1, Hash2);
+                if (mode == 0) continue;
+                tuples.Add(new Tuple<byte, int>(mode, i));
+            }
+            tuples.Sort();
+            List<ListBoxItem> list = new List<ListBoxItem>();
+            for (int j = 0; j < tuples.Count; ++j)
+            {
+                int i = tuples[j].Item2;
+                ListBoxItem item = new ListBoxItem();
+                item.Content = datas[i].toString();
+                if (datas[i].mode)
+                {
+                    Avalonia.Media.SolidColorBrush brush = new Avalonia.Media.SolidColorBrush();
+                    brush.Color = Colors.DarkRed;
+                    item.Background = brush.ToImmutable();
+                }
+                else if (datas[i].contrib.Contains(id))
+                {
+                    Avalonia.Media.SolidColorBrush brush = new Avalonia.Media.SolidColorBrush();
+                    brush.Color = Colors.DarkViolet;
+                    item.Background = brush.ToImmutable();
+                }
+                item.DataContext = datas[i];
+                list.Add(item);
+            }
+            return list.ToImmutableArray();
+        }
+
+        public void Write(string file)
+        {
+            BufferedStream output = new BufferedStream(File.Open(file, FileMode.Create, FileAccess.Write, FileShare.Write), 16777216);
+            string nversion = version + " modified";
+            for (int i = 0; i < nversion.Length; ++i)
+                output.WriteByte((byte)nversion[i]);
+            output.WriteByte(0);
+            for (int i = 1; i < names.Count; ++i)
+            {
+                byte[] vs = Encoding.UTF8.GetBytes(names[i]);
+                output.Write(vs, 0, vs.Length);
+                output.WriteByte(0);
+            }
+            output.WriteByte(0);
+            int peopleCount = names.Count;
+            int bNeed = 1;
+            if (peopleCount > 255) bNeed = 2;
+            if (peopleCount > 65535) bNeed = 3;
+            if (peopleCount > 16777215) bNeed = 4;
+            foreach(Data data in datas)
+            {
+                for (int i = 0; i < data.formula.Length; ++i)
+                    output.WriteByte((byte)data.formula[i]);
+                output.WriteByte(0);
+                byte[] vs = Encoding.UTF8.GetBytes(data.name);
+                output.Write(vs, 0, vs.Length);
+                output.WriteByte(0);
+                for (int i = 0; i < data.cas.Length; ++i)
+                    output.WriteByte((byte)data.cas[i]);
+                output.WriteByte(0);
+                List<int> ctb = data.contrib;
+                ctb.Add(0);
+                foreach(int i in ctb)
+                {
+                    List<byte> vs1 = new List<byte>();
+                    int ni = i;
+                    while(ni > 0)
+                    {
+                        vs1.Add((byte)(ni & 0b11111111));
+                        ni >>= 8;
+                    }
+                    while (vs1.Count < bNeed) vs1.Add(0);
+                    vs1.Reverse();
+                    output.Write(vs1.ToArray(), 0, vs1.Count);
+                }
+            }
+            output.WriteByte(0);
+            output.Flush();
+            output.Close();
         }
     }
 }

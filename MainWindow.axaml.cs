@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media.Imaging;
@@ -65,6 +66,7 @@ namespace chemdb_contribute_tool
             {
                 this.FindControl<Button>("UpdateButton").Content =
                     (string)this.FindControl<Button>("UpdateButton").Content + " (未找到数据库)";
+                Restore.db.version = "Initial";
             }
 
             if(SignedIn)
@@ -123,8 +125,9 @@ namespace chemdb_contribute_tool
             await panel.ShowDialog(this);
             if (!panel.exitNormally) return;
             this.FindControl<ListBox>("list").SelectedItem = null;
-            this.FindControl<ListBox>("list").Items = new List<ListBoxItem>().ToImmutableArray();
+            // this.FindControl<ListBox>("list").Items = new List<ListBoxItem>().ToImmutableArray();
             this.FindControl<ListBox>("list").Items = Restore.db.Add(panel.F, panel.N, panel.C);
+            this.FindControl<TextBox>("Searchbox").Text = "";
         }
 
         private async void EditClick(object s, RoutedEventArgs e)
@@ -136,20 +139,22 @@ namespace chemdb_contribute_tool
             await panel.ShowDialog(this);
             if (!panel.exitNormally) return;
             this.FindControl<ListBox>("list").SelectedItem = null;
-            this.FindControl<ListBox>("list").Items = new List<ListBoxItem>().ToImmutableArray();
+            // this.FindControl<ListBox>("list").Items = new List<ListBoxItem>().ToImmutableArray();
             this.FindControl<ListBox>("list").Items = Restore.db.Add(panel.F, panel.N, panel.C);
+            this.FindControl<TextBox>("Searchbox").Text = "";
         }
 
         private async void DeleteClick(object s, RoutedEventArgs e)
         {
             Msgbox msgbox = new Msgbox();
             string name = ((Database.Data)((ListBoxItem)this.FindControl<ListBox>("list").SelectedItem).DataContext).formula;
-            msgbox.init("将删除 \"" + name + "\", 是否确认?\n此操作不可撤回!");
+            msgbox.init("将删除 \"" + name + "\"\n是否确认?\n此操作不可撤回!");
             await msgbox.ShowDialog(this);
             if (!msgbox.exitNormally) return;
             this.FindControl<ListBox>("list").SelectedItem = null;
-            this.FindControl<ListBox>("list").Items = new List<ListBoxItem>().ToImmutableArray();
+            // this.FindControl<ListBox>("list").Items = new List<ListBoxItem>().ToImmutableArray();
             this.FindControl<ListBox>("list").Items = Restore.db.Delete(name);
+            this.FindControl<TextBox>("Searchbox").Text = "";
         }
 
         private void InfoClick(object s, RoutedEventArgs e)
@@ -207,12 +212,65 @@ namespace chemdb_contribute_tool
             }
         }
 
+        private void DoSearch(string s)
+        {
+            this.FindControl<ListBox>("list").Items = Restore.db.Search(s);
+        }
+
+        private void SearchClick(object sender, RoutedEventArgs e)
+        {
+            string s = this.FindControl<TextBox>("Searchbox").Text;
+            if (s == null || s == "")
+            {
+                this.FindControl<ListBox>("list").Items = Restore.db.GetList();
+                return;
+            }
+            DoSearch(s);
+        }
+
+        private void SearchChanged(object sender, KeyEventArgs e)
+        {
+            string s = this.FindControl<TextBox>("Searchbox").Text;
+            if(s == null || s == "")
+            {
+                this.FindControl<ListBox>("list").Items = Restore.db.GetList();
+                return;
+            }
+            if(s.Contains('\n') || s.Contains('\r'))
+            {
+                string t = "";
+                for (int i = 0; i < s.Length; ++i)
+                    if (s[i] != '\n' && s[i] != '\r')
+                        t += s[i];
+                this.FindControl<TextBox>("Searchbox").Text = t;
+                DoSearch(t);
+            }
+        }
+
+        private async void ExportClick(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog dialog = new SaveFileDialog();
+            FileDialogFilter filter = new FileDialogFilter();
+            filter.Extensions.Add("db");
+            filter.Name = "数据库文件";
+            dialog.Filters.Add(filter);
+            string filename = await dialog.ShowAsync(this);
+            if (filename == null) return;
+            Restore.db.Write(filename);
+        }
+
 
         private void WindowClosing(object s, CancelEventArgs e)
         {
+            if (!SignedIn) return;
             Button Username = this.FindControl<Button>("Username");
             string username = (string)Username.Content;
             Restore.db.SaveUser(Path.Combine("User", username + ".udb"));
+        }
+
+        private void Gugugu(object s, RoutedEventArgs e)
+        {
+            this.FindControl<Button>("gugugubox").Content = "咕咕咕";
         }
     }
 }

@@ -7,7 +7,7 @@
         Title="警告" Icon="resm:chemdb-contribute-tool.chemicon.ico?assembly=chemdb-contribute-tool"
         FontFamily="Microsoft YaHei,微软雅黑,Simsun,苹方-简,宋体-简,文泉驿微米黑">
   <Grid>
-    <TextBox x:Name="Msg" Margin="10,10,10,50" TextWrapping="Wrap" AcceptsReturn="True" IsReadOnly="True"></TextBox>
+    <TextBox x:Name="Msg" Margin="10,10,10,50" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True"></TextBox>
     <Button Content="是" VerticalAlignment="Bottom" Height="30" Margin="10,10,105,10" Click="YClick"></Button>
     <Button Content="否" VerticalAlignment="Bottom" Height="30" Margin="105,10,10,10" Click="NClick"></Button>
   </Grid>

@@ -2,6 +2,8 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
+using System.Drawing.Drawing2D;
 
 namespace chemdb_contribute_tool
 {

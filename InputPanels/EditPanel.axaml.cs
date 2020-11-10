@@ -48,7 +48,7 @@ namespace chemdb_contribute_tool.InputPanels
                 return;
             }
             exitNormally = true;
-            N = this.FindControl<TextBox>("name").Text;
+            N = this.FindControl<TextBox>("name").Text.Replace("\0", "");
             string nC = this.FindControl<TextBox>("cas").Text;
             C = "";
             if(nC != null) for (int i = 0; i < nC.Length; ++i) if (nC[i] >= 32 && nC[i] <= 126) C += nC[i];
