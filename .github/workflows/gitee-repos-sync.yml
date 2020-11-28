@@ -3,6 +3,7 @@
 name: Gitee repos mirror periodic sync job
 
 on:
+  push:
   schedule:
     # Runs at 0:00 UTC (8:00 CST) every day
     - cron: '0 0 * * *'
