@@ -126,7 +126,7 @@ namespace chemdb_contribute_tool
             if (!panel.exitNormally) return;
             this.FindControl<ListBox>("list").SelectedItem = null;
             // this.FindControl<ListBox>("list").Items = new List<ListBoxItem>().ToImmutableArray();
-            this.FindControl<ListBox>("list").Items = Restore.db.Add(panel.F, panel.N, panel.C);
+            this.FindControl<ListBox>("list").Items = Restore.db.Add(panel.F, panel.N, panel.C, panel.S);
             this.FindControl<TextBox>("Searchbox").Text = "";
         }
 
@@ -135,12 +135,12 @@ namespace chemdb_contribute_tool
             if (this.FindControl<ListBox>("list").SelectedItem == null) return;
             Database.Data data = (Database.Data)((ListBoxItem)this.FindControl<ListBox>("list").SelectedItem).DataContext;
             EditPanel panel = new EditPanel();
-            panel.Change(data.formula, data.name, data.cas);
+            panel.Change(data.formula, data.name, data.cas, data.smiles);
             await panel.ShowDialog(this);
             if (!panel.exitNormally) return;
             this.FindControl<ListBox>("list").SelectedItem = null;
             // this.FindControl<ListBox>("list").Items = new List<ListBoxItem>().ToImmutableArray();
-            this.FindControl<ListBox>("list").Items = Restore.db.Add(panel.F, panel.N, panel.C);
+            this.FindControl<ListBox>("list").Items = Restore.db.Add(panel.F, panel.N, panel.C, panel.S);
             this.FindControl<TextBox>("Searchbox").Text = "";
         }
 
@@ -163,15 +163,17 @@ namespace chemdb_contribute_tool
             InfoWindow window = new InfoWindow();
             List<string> cont = new List<string>();
             foreach (int i in data.contrib) cont.Add(Database.names[i]);
-            window.init(data.formula, data.name, data.cas, data.mol, cont);
+            window.init(data.formula, data.name, data.cas, data.smiles, data.mol, cont);
             window.Show();
         }
 
         private void StatClick(object s, RoutedEventArgs e)
         {
-            InfoWindow window = new InfoWindow();
-            window.Title = "统计";
-            int yr = 0, sz = 0, ys = 0, ca = 0;
+            InfoWindow window = new InfoWindow
+            {
+                Title = "统计"
+            };
+            int yr = 0, sz = 0, ys = 0, ca = 0, cs = 0;
             long fz = 0;
             foreach(Database.Data data in Restore.db.datas)
             {
@@ -179,13 +181,16 @@ namespace chemdb_contribute_tool
                 sz += data.formula.Length;
                 sz += System.Text.Encoding.UTF8.GetBytes(data.name).Length;
                 sz += data.cas.Length;
+                sz += data.smiles.Length;
                 fz += data.mol;
                 if (!data.mode) ++ys;
                 if (data.cas != null && data.cas != "") ++ca;
+                if (data.smiles != null && data.smiles != "") ++cs;
             }
             window.FindControl<TextBox>("text").Text = string.Join("\n\n", new List<string>{
                 "总数: " + Restore.db.datas.Count.ToString("N0"),
                 "已知 CAS 号的分子数: " + ca.ToString("N0"),
+                "已知 SMILES 的分子数: " + cs.ToString("N0"),
                 "你的贡献: " + yr.ToString("N0"),
                 "新增的贡献: " + (Restore.db.datas.Count - ys).ToString("N0"),
                 "数据大小: " + sz.ToString("N0"),

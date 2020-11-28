@@ -23,15 +23,15 @@ namespace chemdb_contribute_tool
 
         public class Data
         {
-            public string formula, name, cas;
+            public string formula, name, cas, smiles;
             public List<int> contrib;
             public int mol;
             int hash1, hash2;
             public bool mode;
 
-            public Data(string F, string N, string C, List<int> Cs, bool Mode = false)
+            public Data(string F, string N, string C, string S, List<int> Cs, bool Mode = false)
             {
-                formula = F; name = N; cas = C;
+                formula = F; name = N; cas = C; smiles = S;
                 contrib = Cs;
                 mol = new MolCalculator(F, AtomDB.mass).Calculate();
                 hash1 = new MolCalculator(F, AtomDB.hash1, 998244353).Calculate();
@@ -44,11 +44,7 @@ namespace chemdb_contribute_tool
             {
                 string convert = formula.Replace(".", "·") + " | " + name;
                 if (cas != "" && cas != null) convert += " | " + cas;
-                convert += " [";
-                foreach(int i in contrib) {
-                    convert += names[i];
-                }
-                return convert + ']';
+                return convert;
             }
 
             // 判断这个分子信息是否可以在指定的搜索字符串下显示
@@ -56,7 +52,7 @@ namespace chemdb_contribute_tool
             {
                 if (Hash1 == hash1 && Hash2 == hash2) return 1;
                 if (formula.ToLower().Contains(search.ToLower()) || name.ToLower().Contains(search.ToLower())
-                    || cas.ToLower().Contains(search.ToLower())) return 2;
+                    || cas.ToLower().Contains(search.ToLower()) || smiles.ToLower().Contains(search.ToLower())) return 2;
                 try
                 {
                     double val = Convert.ToDouble(search);
@@ -105,7 +101,7 @@ namespace chemdb_contribute_tool
                 bt = input.ReadByte();
                 while(bt != 0)
                 {
-                    string F = "", N = "", C = "";
+                    string F = "", N = "", C = "", S = "";
                     while(bt != 0)
                     {
                         F += (char)bt;
@@ -120,9 +116,15 @@ namespace chemdb_contribute_tool
                     }
                     bt = input.ReadByte();
                     N = Encoding.UTF8.GetString(vs.ToArray());
-                    while(bt != 0)
+                    while(bt != 0 && bt != 1)
                     {
                         C += (char)bt;
+                        bt = input.ReadByte();
+                    }
+                    bt = input.ReadByte();
+                    while(bt != 0)
+                    {
+                        S += (char)bt;
                         bt = input.ReadByte();
                     }
                     List<int> vs1 = new List<int>();
@@ -135,7 +137,7 @@ namespace chemdb_contribute_tool
                         vs1.Add(num);
                     }
                     position[F] = datas.Count;
-                    datas.Add(new Data(F, N, C, vs1));
+                    datas.Add(new Data(F, N, C, S, vs1));
                     bt = input.ReadByte();
                 }
                 input.Close();
@@ -161,7 +163,7 @@ namespace chemdb_contribute_tool
             int bt = input.ReadByte();
             while(bt != 0)
             {
-                string F = "", N = "", C = "";
+                string F = "", C = "", S = "";
                 while (bt != 0)
                 {
                     F += (char)bt;
@@ -175,10 +177,16 @@ namespace chemdb_contribute_tool
                     bt = input.ReadByte();
                 }
                 bt = input.ReadByte();
-                N = Encoding.UTF8.GetString(vs.ToArray());
-                while (bt != 0)
+                string N = Encoding.UTF8.GetString(vs.ToArray());
+                while (bt != 0 && bt != 1)
                 {
                     C += (char)bt;
+                    bt = input.ReadByte();
+                }
+                bt = input.ReadByte();
+                while(bt != 0)
+                {
+                    S += (char)bt;
                     bt = input.ReadByte();
                 }
                 if(position.ContainsKey(F))
@@ -186,12 +194,12 @@ namespace chemdb_contribute_tool
                     int pos = position[F];
                     if (!datas[pos].contrib.Contains(id))
                         datas[pos].contrib.Add(id);
-                    datas[pos] = new Data(F, N, C, datas[pos].contrib, true);
+                    datas[pos] = new Data(F, N, C, S, datas[pos].contrib, true);
                 }
                 else
                 {
                     position[F] = datas.Count;
-                    datas.Add(new Data(F, N, C, new List<int>(), true));
+                    datas.Add(new Data(F, N, C, S, new List<int>(), true));
                     datas[datas.Count - 1].contrib.Add(id);
                 }
                 bt = input.ReadByte();
@@ -224,19 +232,19 @@ namespace chemdb_contribute_tool
             return list.ToImmutableArray();
         }
 
-        public IEnumerable<ListBoxItem> Add(string F, string N, string C)
+        public IEnumerable<ListBoxItem> Add(string F, string N, string C, string S)
         {
             if (position.ContainsKey(F))
             {
                 int pos = position[F];
                 if (!datas[pos].contrib.Contains(id))
                     datas[pos].contrib.Add(id);
-                datas[pos] = new Data(F, N, C, datas[pos].contrib, true);
+                datas[pos] = new Data(F, N, C, S, datas[pos].contrib, true);
             }
             else
             {
                 position[F] = datas.Count;
-                datas.Add(new Data(F, N, C, new List<int>(), true));
+                datas.Add(new Data(F, N, C, S, new List<int>(), true));
                 datas[datas.Count - 1].contrib.Add(id);
             }
             return GetList();
@@ -263,7 +271,7 @@ namespace chemdb_contribute_tool
             foreach(Data data in datas)
             {
                 if (!data.mode) continue;
-                string F = data.formula, N = data.name, C = data.cas;
+                string F = data.formula, N = data.name, C = data.cas, S = data.smiles;
                 for (int i = 0; i < F.Length; ++i) output.WriteByte((byte)F[i]);
                 output.WriteByte(0);
                 byte[] vs = Encoding.UTF8.GetBytes(N);
@@ -271,6 +279,8 @@ namespace chemdb_contribute_tool
                 output.WriteByte(0);
                 if (C == null) C = "";
                 for (int i = 0; i < C.Length; ++i) output.WriteByte((byte)C[i]);
+                output.WriteByte(1);
+                for (int i = 0; i < S.Length; ++i) output.WriteByte((byte)S[i]);
                 output.WriteByte(0);
             }
             output.WriteByte(0);
@@ -349,6 +359,9 @@ namespace chemdb_contribute_tool
                 output.WriteByte(0);
                 for (int i = 0; i < data.cas.Length; ++i)
                     output.WriteByte((byte)data.cas[i]);
+                output.WriteByte(1);
+                for (int i = 0; i < data.smiles.Length; ++i)
+                    output.WriteByte((byte)data.smiles[i]);
                 output.WriteByte(0);
                 List<int> ctb = data.contrib;
                 ctb.Add(0);

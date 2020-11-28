@@ -18,7 +18,7 @@ namespace chemdb_contribute_tool
             Height = 400;
         }
 
-        public void init(string F, string N, string C, int mol, List<string> vs)
+        public void init(string F, string N, string C, string S, int mol, List<string> vs)
         {
             TextBox text = this.FindControl<TextBox>("text");
             text.Text = string.Join("\n\n", new List<string>{
@@ -26,6 +26,7 @@ namespace chemdb_contribute_tool
                 "名称: " + N,
                 "CAS 号: " + (C == "" || C == null ? "未知" : C),
                 "分子质量: " + (mol / 10.0).ToString("N1") + " g/mol",
+                "SMILES: " + S,
                 "贡献者: " + string.Join(", ", vs)
             });
         }
