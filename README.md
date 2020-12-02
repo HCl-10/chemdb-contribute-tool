@@ -1,2 +1,8 @@
-# chemdb-contribute-tool
- A tool that lets you contribute to chemdb.
+# ChemDB 贡献工具
+ 一个能够让你快速贡献到 ChemDB 的工具。
+
+## 目前已经加入的功能
++ 添加/删除/编辑分子信息
++ 查看分子的详细信息
++ 按照原子量、结构式和名称查询分子
++ 导出当前数据库状态至一个副本（可以在其他程序中访问）
