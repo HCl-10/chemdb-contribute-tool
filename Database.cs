@@ -194,6 +194,7 @@ namespace chemdb_contribute_tool
                     int pos = position[F];
                     if (!datas[pos].contrib.Contains(id))
                         datas[pos].contrib.Add(id);
+                    if (N == datas[pos].name && C == datas[pos].cas && S == datas[pos].smiles) continue;
                     datas[pos] = new Data(F, N, C, S, datas[pos].contrib, true);
                 }
                 else

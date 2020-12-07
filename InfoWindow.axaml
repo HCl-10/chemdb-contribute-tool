@@ -8,6 +8,7 @@
         Icon="resm:chemdb-contribute-tool.chemicon.ico?assembly=chemdb-contribute-tool">
   <Grid>
     <Image Source="resm:chemdb-contribute-tool.ChemdbIconLarge.png?assembly=chemdb-contribute-tool" VerticalAlignment="Top" Margin="10,10,10,10"></Image>
-    <TextBox Margin="10,100,10,10" IsReadOnly="true" x:Name="text" TextWrapping="Wrap" AcceptsReturn="True"></TextBox>
+    <TextBox Margin="10,100,10,10" Height="280" VerticalAlignment="Top" IsReadOnly="true" x:Name="text" TextWrapping="Wrap" AcceptsReturn="True"></TextBox>
+    <Image x:Name="img" Margin="10,10,10,10" HorizontalAlignment="Center" VerticalAlignment="Bottom"></Image>
   </Grid>
 </Window>

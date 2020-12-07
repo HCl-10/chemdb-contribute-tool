@@ -12,6 +12,8 @@ using System.Collections.Immutable;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Threading;
 
 namespace chemdb_contribute_tool
 {
@@ -262,6 +264,65 @@ namespace chemdb_contribute_tool
             string filename = await dialog.ShowAsync(this);
             if (filename == null) return;
             Restore.db.Write(filename);
+        }
+
+        private async void UpdateClick(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // 由于软件的主体用户是中国大陆用户，所以使用 Gitee。
+                WebResponse response = WebRequest.Create("https://gitee.com/HCl-10/chemdb/raw/main/Database.db").GetResponse();
+                Stream stream = response.GetResponseStream();
+                string ver = "";
+                int ch = stream.ReadByte();
+                while(ch != 0)
+                {
+                    ver += (char)ch;
+                    ch = stream.ReadByte();
+                }
+                stream.Close();
+                if(ver == Restore.db.version)
+                {
+                    this.FindControl<Button>("UpdateButton").Content = "您的数据库是最新版本";
+                    return;
+                }
+                Msgbox msgbox = new Msgbox();
+                msgbox.Title = "更新";
+                msgbox.init("您的数据库不是最新版本。\n是否更新?");
+                await msgbox.ShowDialog(this);
+                if (!msgbox.exitNormally) return;
+                bool completed = false;
+                response = WebRequest.Create("https://gitee.com/HCl-10/chemdb/raw/main/Database.db").GetResponse();
+                BufferedStream buff = new BufferedStream(response.GetResponseStream(), 1048576);
+                long Dloaded = 0;
+                Thread thread = new Thread(() =>
+                {
+                    BufferedStream wr = new BufferedStream(File.Open("Database.db", FileMode.Create, FileAccess.Write, FileShare.Write), 1048576);
+                    int bt = buff.ReadByte();
+                    while(bt != -1)
+                    {
+                        wr.WriteByte((byte)bt);
+                        bt = buff.ReadByte(); ++Dloaded;
+                    }
+                    wr.Close();
+                    buff.Close();
+                    completed = true;
+                });
+                thread.Start();
+                while(!completed)
+                {
+                    this.FindControl<Button>("UpdateButton").Content = "下载中，已下载：" + Dloaded.ToString("N0");
+                    Thread.Sleep(100);
+                }
+                this.FindControl<Button>("UpdateButton").Content = "重启后完成更新";
+            }
+            catch (Exception ex)
+            {
+                Msgbox msgbox = new Msgbox();
+                msgbox.Title = "错误";
+                msgbox.init(ex.Message);
+                await msgbox.ShowDialog(this);
+            }
         }
 
 
