@@ -1,0 +1,15 @@
+#!/bin/sh
+
+cd $(dirname ${BASH_SOURCE:-$0})
+
+dotnet publish -c Release -p:PublishSingleFile=true -r win-x64
+dotnet publish -c Release -p:PublishSingleFile=true -r linux-x64
+dotnet publish -c Release -p:PublishSingleFile=true -r osx-x64
+dotnet publish -c Release -p:PublishSingleFile=true -r win-x86
+
+rm bin/*.zip
+
+7z a bin/chemdb-contribute-tool-win64.zip $(pwd)/bin/Release/netcoreapp3.1/win-x64/publish/*
+7z a bin/chemdb-contribute-tool-linux64.zip $(pwd)/bin/Release/netcoreapp3.1/linux-x64/publish/*
+7z a bin/chemdb-contribute-tool-osx64.zip $(pwd)/bin/Release/netcoreapp3.1/osx-x64/publish/*
+7z a bin/chemdb-contribute-tool-win32.zip $(pwd)/bin/Release/netcoreapp3.1/win-x86/publish/*

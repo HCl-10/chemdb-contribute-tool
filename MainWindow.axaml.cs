@@ -78,10 +78,7 @@ namespace chemdb_contribute_tool
             this.FindControl<ListBox>("list").Items = Restore.db.GetList();
         }
 
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
+        private void InitializeComponent() => AvaloniaXamlLoader.Load(this);
 
         private void AboutClick(object s, RoutedEventArgs e)
         {
@@ -118,6 +115,7 @@ namespace chemdb_contribute_tool
             string b64 = Convert.ToBase64String(bt);
             byte[] bs = System.Text.Encoding.UTF8.GetBytes(b64);
             stream.Write(bs, 0, bs.Length); stream.Close();
+            this.FindControl<ListBox>("list").Items = Restore.db.GetList();
             SignedIn = true;
         }
 
@@ -180,10 +178,10 @@ namespace chemdb_contribute_tool
             foreach(Database.Data data in Restore.db.datas)
             {
                 if (data.contrib.Contains(Restore.db.id)) ++yr;
-                sz += data.formula.Length;
-                sz += System.Text.Encoding.UTF8.GetBytes(data.name).Length;
-                sz += data.cas.Length;
-                sz += data.smiles.Length;
+                sz += data.formula.Length + 1;
+                sz += System.Text.Encoding.UTF8.GetBytes(data.name).Length + 1;
+                sz += data.cas.Length + 1;
+                sz += data.smiles.Length + 1;
                 fz += data.mol;
                 if (!data.mode) ++ys;
                 if (data.cas != null && data.cas != "") ++ca;
@@ -221,7 +219,7 @@ namespace chemdb_contribute_tool
 
         private void DoSearch(string s)
         {
-            this.FindControl<ListBox>("list").Items = Restore.db.Search(s);
+            this.FindControl<ListBox>("list").Items = Restore.db.Search(s.Trim());
         }
 
         private void SearchClick(object sender, RoutedEventArgs e)
@@ -314,7 +312,7 @@ namespace chemdb_contribute_tool
                     this.FindControl<Button>("UpdateButton").Content = "下载中，已下载：" + Dloaded.ToString("N0");
                     Thread.Sleep(100);
                 }
-                this.FindControl<Button>("UpdateButton").Content = "重启后完成更新";
+                this.FindControl<Button>("UpdateButton").Content = "重启程序以完成更新";
             }
             catch (Exception ex)
             {
@@ -336,7 +334,8 @@ namespace chemdb_contribute_tool
 
         private void Gugugu(object s, RoutedEventArgs e)
         {
-            this.FindControl<Button>("gugugubox").Content = "咕咕咕";
+            Gugugubox ggb = new Gugugubox();
+            ggb.Show();
         }
     }
 }

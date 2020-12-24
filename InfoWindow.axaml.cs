@@ -23,7 +23,7 @@ namespace chemdb_contribute_tool
             Height = 400;
         }
 
-        private Bitmap ZoomImage(Bitmap bitmap, int destHeight, int destWidth)
+        public static Bitmap ZoomImage(Bitmap bitmap, int destHeight, int destWidth)
         {
             // 代码来源于网络
             try
@@ -52,7 +52,7 @@ namespace chemdb_contribute_tool
                 }
                 Bitmap destBitmap = new Bitmap(destWidth, destHeight);
                 Graphics g = Graphics.FromImage(destBitmap);
-                g.Clear(Color.Transparent);
+                g.Clear(Color.White);
                 g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                 g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;

@@ -1,0 +1,17 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="450"
+        x:Class="chemdb_contribute_tool.Toolbox.SmilesDrawer"
+        Title="在线 SMILES 转结构" FontFamily="Microsoft YaHei,微软雅黑,Simsun,苹方-简,宋体-简,文泉驿微米黑"
+		Icon="resm:chemdb-contribute-tool.chemicon.ico?assembly=chemdb-contribute-tool">
+	<Grid>
+		<TextBox VerticalAlignment="Top" Margin="10,10,70,10" Height="30" Watermark="输入 SMILES，按回车键生成结构。" AcceptsReturn="True" x:Name="Searchbox" KeyUp="SearchChanged" ScrollViewer.HorizontalScrollBarVisibility="Hidden"></TextBox>
+		<Button VerticalAlignment="Top" HorizontalAlignment="Right" Margin="10,10,10,10" Content="生成" Height="30" Width="50" Click="SearchClick"></Button>
+        <Image x:Name="img" Margin="10,10,10,50" HorizontalAlignment="Center" VerticalAlignment="Bottom" IsVisible="False"></Image>
+		<TextBlock x:Name="err" Margin="10,10,10,10" VerticalAlignment="Bottom" Height="25" IsVisible="False" Text="生成失败! 请检查 SMILES 中是否存在语法错误!" Foreground="Red"></TextBlock>
+		<TextBlock x:Name="nerr" Margin="10,10,10,10" VerticalAlignment="Bottom" Height="25" IsVisible="False" Text="网络错误! 请检查网络连接是否正常!" Foreground="Red"></TextBlock>
+		<Button x:Name="save" Margin="10,10,10,10" VerticalAlignment="Bottom" Height="30" IsVisible="False" Content="保存图片" Click="ExportClick"></Button>
+	</Grid>
+</Window>

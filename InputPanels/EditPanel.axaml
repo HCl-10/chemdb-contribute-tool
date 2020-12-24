@@ -7,10 +7,10 @@
         FontFamily="Microsoft YaHei,微软雅黑,Simsun,苹方-简,宋体-简,文泉驿微米黑"
         Title="编辑" Icon="resm:chemdb-contribute-tool.chemicon.ico?assembly=chemdb-contribute-tool">
   <Grid>
-    <TextBox Margin="10,10,10,10" VerticalAlignment="Top" Height="30" Watermark="分子式..." x:Name="formula" KeyUp="TextChanged"></TextBox>
-    <TextBox Margin="10,50,10,10" VerticalAlignment="Top" Height="60" Watermark="分子名称..." x:Name="name" KeyUp="TextChanged"></TextBox>
-    <TextBox Margin="10,120,10,10" VerticalAlignment="Top" Height="30" Watermark="CAS 号..." x:Name="cas" KeyUp="TextChanged"></TextBox>
-    <TextBox Margin="10,160,10,10" VerticalAlignment="Top" Height="30" Watermark="SMILES 结构式..." x:Name="smiles" KeyUp="TextChanged"></TextBox>
+    <TextBox Margin="10,10,10,10" VerticalAlignment="Top" Height="30" Watermark="分子式..." x:Name="formula" KeyUp="TextChanged" ScrollViewer.HorizontalScrollBarVisibility="Hidden"></TextBox>
+    <TextBox Margin="10,50,10,10" VerticalAlignment="Top" Height="60" Watermark="分子名称..." x:Name="name" KeyUp="TextChanged" ScrollViewer.HorizontalScrollBarVisibility="Hidden"></TextBox>
+    <TextBox Margin="10,120,10,10" VerticalAlignment="Top" Height="30" Watermark="CAS 号..." x:Name="cas" KeyUp="TextChanged" ScrollViewer.HorizontalScrollBarVisibility="Hidden"></TextBox>
+    <TextBox Margin="10,160,10,10" VerticalAlignment="Top" Height="30" Watermark="SMILES 结构式..." x:Name="smiles" KeyUp="TextChanged" ScrollViewer.HorizontalScrollBarVisibility="Hidden"></TextBox>
     <Button Margin="10,10,10,10" VerticalAlignment="Bottom" Height="30" Content="确认" Click="OKClick" x:Name="OKbutton" IsEnabled="False"></Button>
   </Grid>
 </Window>

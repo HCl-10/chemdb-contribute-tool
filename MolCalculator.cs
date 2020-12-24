@@ -207,7 +207,13 @@ namespace chemdb_contribute_tool
 
         public int Calculate()
         {
-            return CalculateFul(0, moe.Length);
+            try
+            {
+                return CalculateFul(0, moe.Length);
+            }catch(Exception)
+            {
+                return -1;
+            }
         }
     }
 }
